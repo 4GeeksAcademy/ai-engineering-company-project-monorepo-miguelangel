@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: incidents-analyzer
+Version: 0.1.0
+Summary: Lógica compartida de validación y análisis de incidentes de Nexova (usada por scripts/ y services/api).
+Requires-Python: >=3.10

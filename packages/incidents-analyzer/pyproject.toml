@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "incidents-analyzer"
+version = "0.1.0"
+description = "Lógica compartida de validación y análisis de incidentes de Nexova (usada por scripts/ y services/api)."
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+include = ["incidents_analyzer*"]

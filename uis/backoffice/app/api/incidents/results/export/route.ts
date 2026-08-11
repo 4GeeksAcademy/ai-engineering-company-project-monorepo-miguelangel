@@ -1,0 +1,18 @@
+const BACKEND_API_URL = process.env.BACKEND_API_URL ?? "http://127.0.0.1:8000";
+
+export async function GET(): Promise<Response> {
+  const backendResponse = await fetch(`${BACKEND_API_URL}/api/incidents/results/export`, {
+    cache: "no-store",
+  });
+
+  const body = await backendResponse.text();
+
+  return new Response(body, {
+    status: backendResponse.status,
+    headers: {
+      "content-type": backendResponse.headers.get("content-type") ?? "text/csv; charset=utf-8",
+      "content-disposition":
+        backendResponse.headers.get("content-disposition") ?? 'attachment; filename="results.csv"',
+    },
+  });
+}

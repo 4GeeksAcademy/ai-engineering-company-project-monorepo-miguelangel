@@ -1,0 +1,10 @@
+README.md
+models.py
+pyproject.toml
+seed.py
+nexova_api.egg-info/PKG-INFO
+nexova_api.egg-info/SOURCES.txt
+nexova_api.egg-info/dependency_links.txt
+nexova_api.egg-info/entry_points.txt
+nexova_api.egg-info/requires.txt
+nexova_api.egg-info/top_level.txt

@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from tinydb import TinyDB
 
-from models import Country, ProviderCreate, Status, VALID_CATEGORIES
+from models import Country, ProviderCreate, Status, User, VALID_CATEGORIES
+from security import get_current_user
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "suppliers.json"
 TABLE_NAME = "suppliers"
@@ -47,7 +48,9 @@ def _doc_to_response(doc: object) -> SupplierRead:
 
 
 @router.post("", response_model=SupplierRead, status_code=201)
-def create_supplier(supplier: SupplierCreate) -> SupplierRead:
+def create_supplier(
+    supplier: SupplierCreate, current_user: User = Depends(get_current_user)
+) -> SupplierRead:
     db, table = _get_table()
     try:
         payload = supplier.model_dump(mode="json")
@@ -100,7 +103,11 @@ def get_supplier(supplier_id: int) -> SupplierRead:
 
 
 @router.patch("/{supplier_id}/rate", response_model=SupplierRead)
-def update_supplier_rate(supplier_id: int, payload: RateUpdate) -> SupplierRead:
+def update_supplier_rate(
+    supplier_id: int,
+    payload: RateUpdate,
+    current_user: User = Depends(get_current_user),
+) -> SupplierRead:
     db, table = _get_table()
     try:
         existing = table.get(doc_id=supplier_id)
@@ -124,7 +131,11 @@ def update_supplier_rate(supplier_id: int, payload: RateUpdate) -> SupplierRead:
 
 
 @router.patch("/{supplier_id}/status", response_model=SupplierRead)
-def update_supplier_status(supplier_id: int, payload: StatusUpdate) -> SupplierRead:
+def update_supplier_status(
+    supplier_id: int,
+    payload: StatusUpdate,
+    current_user: User = Depends(get_current_user),
+) -> SupplierRead:
     db, table = _get_table()
     try:
         existing = table.get(doc_id=supplier_id)
@@ -142,7 +153,9 @@ def update_supplier_status(supplier_id: int, payload: StatusUpdate) -> SupplierR
 
 
 @router.delete("/{supplier_id}")
-def delete_supplier(supplier_id: int) -> dict[str, bool]:
+def delete_supplier(
+    supplier_id: int, current_user: User = Depends(get_current_user)
+) -> dict[str, bool]:
     db, table = _get_table()
     try:
         existing = table.get(doc_id=supplier_id)

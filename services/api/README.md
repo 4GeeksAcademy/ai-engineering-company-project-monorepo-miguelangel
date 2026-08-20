@@ -1,5 +1,34 @@
 # `services/api` — API centralizada de Nexova (FastAPI)
 
+## Autenticación
+
+Auth JWT stateless. Los usuarios y perfiles se almacenan **solo en TinyDB**
+(`data/users.json`, `data/profiles.json`), incluso tras introducir Supabase.
+
+| Método | Ruta                | Descripción                                                          | Protegida |
+| ------ | ------------------- | --------------------------------------------------------------------- | --------- |
+| `POST` | `/users`            | Registro: crea `User` + `Profile` inicial.                            | No        |
+| `GET`  | `/users`            | Lista usuarios.                                                        | Sí        |
+| `GET`  | `/users/{id}`       | Obtiene un usuario.                                                    | Sí        |
+| `PUT`  | `/users/{id}`       | Actualiza `email`/`role` (propio usuario o admin).                    | Sí        |
+| `DELETE` | `/users/{id}`     | Elimina usuario + perfil vinculado (propio usuario o admin).          | Sí        |
+| `GET`  | `/profiles/me`      | Perfil del usuario autenticado.                                       | Sí        |
+| `PUT`  | `/profiles/me`      | Actualiza `name`/`phone`/`address` propios.                            | Sí        |
+| `POST` | `/auth/login`       | Valida credenciales, devuelve `{ access_token, token_type }`.         | No        |
+| `GET`  | `/auth/me`          | Devuelve email, role y profile del usuario autenticado.               | Sí        |
+
+Variables de entorno (`services/api/.env`, ver `.env.example`):
+
+- `SECRET_KEY` — clave de firma del JWT. Nunca hardcodeada, nunca commiteada.
+- `ALGORITHM` — por defecto `HS256`.
+- `ACCESS_TOKEN_EXPIRE_MINUTES` — ventana de expiración del token (por defecto `30`).
+
+Rutas protegidas fuera de `/users`/`/auth`/`/profiles` (requieren
+`Authorization: Bearer <token>`): `POST /suppliers`,
+`PATCH /suppliers/{id}/rate`, `PATCH /suppliers/{id}/status`,
+`DELETE /suppliers/{id}`, `POST /api/incidents/analyze`,
+`GET /api/incidents/results/export`.
+
 ## Dominio: `incidents`
 
 Endpoints para el análisis de ficheros de incidentes de soporte (Fase 2 del
@@ -19,11 +48,17 @@ paquete compartido `packages/incidents-analyzer` — la misma que usa
 
 ```bash
 cd services/api
-python -m venv .venv && source .venv/bin/activate   # opcional pero recomendado
-pip install -r requirements.txt
+cp .env.example .env   # y genera tu propio SECRET_KEY, ver más abajo
+uv sync                # o: pip install -r requirements.txt
 pip install -e ../../packages/incidents-analyzer
 
 uvicorn app.main:app --reload --port 8000
+```
+
+Genera un `SECRET_KEY` aleatorio con:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
 La API queda disponible en `http://localhost:8000`. Documentación

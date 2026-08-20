@@ -103,3 +103,90 @@ class ProviderResponse(ProviderBase):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# --- Auth / Users / Profiles -------------------------------------------------
+
+
+class Role(str, Enum):
+    ADMIN = "admin"
+    MANAGER = "manager"
+    USER = "user"
+
+
+class ProfileFields(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    address: str | None = None
+
+
+class UserCreate(BaseModel):
+    """Payload de registro: credenciales + datos de perfil opcionales."""
+
+    email: str = Field(min_length=3)
+    password: str = Field(min_length=8)
+    name: str | None = None
+    phone: str | None = None
+    address: str | None = None
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+
+class UserUpdate(BaseModel):
+    email: str | None = None
+    role: Role | None = None
+
+
+class UserRead(BaseModel):
+    id: str
+    email: str
+    is_active: bool
+    role: Role
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProfileUpdate(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    address: str | None = None
+
+
+class ProfileRead(BaseModel):
+    id: str
+    user_id: str
+    name: str | None = None
+    phone: str | None = None
+    address: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MeRead(BaseModel):
+    email: str
+    role: Role
+    profile: ProfileRead
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class User(BaseModel):
+    """Representación interna completa (incluye `hashed_password`)."""
+
+    id: str
+    email: str
+    hashed_password: str
+    is_active: bool = True
+    role: Role = Role.USER
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    model_config = ConfigDict(from_attributes=True)

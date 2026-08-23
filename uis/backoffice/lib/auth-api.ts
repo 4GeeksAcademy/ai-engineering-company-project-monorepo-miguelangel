@@ -30,6 +30,10 @@ export interface ProfileUpdatePayload {
   address?: string;
 }
 
+interface DetailResponse {
+  detail: string;
+}
+
 export class AuthApiError extends Error {
   status: number;
   fieldErrors?: Record<string, string>;
@@ -141,4 +145,25 @@ export async function updateProfile(payload: ProfileUpdatePayload): Promise<Prof
     method: "PUT",
     body: JSON.stringify(payload),
   });
+}
+
+export async function forgotPassword(email: string): Promise<string> {
+  const response = await publicAuthRequest<DetailResponse>("/api/auth/forgot-password", { email });
+  return response.detail;
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<string> {
+  const response = await publicAuthRequest<DetailResponse>("/api/auth/reset-password", {
+    token,
+    new_password: newPassword,
+  });
+  return response.detail;
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<string> {
+  const response = await protectedAuthRequest<DetailResponse>("/api/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+  });
+  return response.detail;
 }

@@ -11,6 +11,7 @@ en la misma operación. El resto de rutas requieren un token válido.
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -46,6 +47,20 @@ def get_user_by_email(email: str) -> User | None:
     try:
         doc = table.get(Query().email == email.strip().lower())
         return User.model_validate(doc) if doc else None
+    finally:
+        db.close()
+
+
+def set_user_password(user_id: str, new_password: str) -> None:
+    db, table = _get_table()
+    try:
+        table.update(
+            {
+                "hashed_password": hash_password(new_password),
+                "password_changed_at": datetime.now(timezone.utc).isoformat(),
+            },
+            Query().id == user_id,
+        )
     finally:
         db.close()
 

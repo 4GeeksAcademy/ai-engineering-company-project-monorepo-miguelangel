@@ -16,12 +16,19 @@ Auth JWT stateless. Los usuarios y perfiles se almacenan **solo en TinyDB**
 | `PUT`  | `/profiles/me`      | Actualiza `name`/`phone`/`address` propios.                            | Sí        |
 | `POST` | `/auth/login`       | Valida credenciales, devuelve `{ access_token, token_type }`.         | No        |
 | `GET`  | `/auth/me`          | Devuelve email, role y profile del usuario autenticado.               | Sí        |
+| `POST` | `/auth/forgot-password` | Envía (si el email existe y está activo) un link de reset por email. Siempre `200`. | No |
+| `POST` | `/auth/reset-password`  | Consume el token del email y fija una nueva contraseña.           | No        |
+| `POST` | `/auth/change-password` | Cambia la contraseña de la sesión activa (requiere la actual).    | Sí        |
 
 Variables de entorno (`services/api/.env`, ver `.env.example`):
 
 - `SECRET_KEY` — clave de firma del JWT. Nunca hardcodeada, nunca commiteada.
 - `ALGORITHM` — por defecto `HS256`.
 - `ACCESS_TOKEN_EXPIRE_MINUTES` — ventana de expiración del token (por defecto `30`).
+- `PASSWORD_RESET_TOKEN_EXPIRE_MINUTES` — validez del token de `/auth/forgot-password` (por defecto `30`).
+- `RESEND_FROM_EMAIL` — remitente del email de recuperación (por defecto `onboarding@resend.dev`).
+- `FRONTEND_URL` — base usada para construir el link `/reset-password?token=...` del email.
+- `RESEND_API_KEY` — API key de [Resend](https://resend.com/api-keys). Nunca hardcodeada, nunca commiteada.
 
 Rutas protegidas fuera de `/users`/`/auth`/`/profiles` (requieren
 `Authorization: Bearer <token>`): `POST /suppliers`,

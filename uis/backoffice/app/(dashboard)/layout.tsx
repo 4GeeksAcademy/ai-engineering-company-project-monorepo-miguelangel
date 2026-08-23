@@ -1,4 +1,6 @@
 import Link from "next/link";
+import AccountMenu from "@/components/AccountMenu";
+import RequireAuth from "@/components/RequireAuth";
 
 export default function DashboardLayout({
   children,
@@ -6,6 +8,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <RequireAuth>
     <div className="flex min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-400/20 selection:text-cyan-100">
       <aside className="hidden w-72 shrink-0 border-r border-slate-800/80 bg-slate-950/90 text-slate-100 lg:block">
         <div className="border-b border-slate-800 px-6 py-6">
@@ -61,8 +64,11 @@ export default function DashboardLayout({
               </p>
               <p className="text-sm text-slate-300">Control financiero consolidado</p>
             </div>
-            <div className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-xs font-medium text-slate-200">
-              Entorno: Producción
+            <div className="flex items-center gap-3">
+              <div className="rounded-full border border-slate-700 bg-slate-900/80 px-3 py-1 text-xs font-medium text-slate-200">
+                Entorno: Producción
+              </div>
+              <AccountMenu />
             </div>
           </div>
         </header>
@@ -72,5 +78,6 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+    </RequireAuth>
   );
 }

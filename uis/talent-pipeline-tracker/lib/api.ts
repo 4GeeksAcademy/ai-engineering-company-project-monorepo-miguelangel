@@ -7,6 +7,7 @@ import type {
 	NotesResponse,
 	RecordsListResponse,
 } from "@/types";
+import { clearToken, getToken } from "./auth-storage";
 
 function getApiBaseUrl(): string {
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -21,13 +22,24 @@ async function apiRequest<T>(
 	endpoint: string,
 	options?: RequestInit,
 ): Promise<T> {
+	const token = getToken();
+
 	const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
 		headers: {
 			"Content-Type": "application/json",
+			...(token ? { Authorization: `Bearer ${token}` } : {}),
 			...(options?.headers ?? {}),
 		},
 		...options,
 	});
+
+	if (response.status === 401) {
+		clearToken();
+		if (typeof window !== "undefined") {
+			window.location.href = "/login";
+		}
+		throw new Error("Sesion expirada.");
+	}
 
 	const text = await response.text();
 	const data = text ? JSON.parse(text) : null;

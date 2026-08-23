@@ -66,6 +66,12 @@ export default function LoginPage() {
             />
           </label>
 
+          <p className="text-right text-sm">
+            <Link href="/forgot-password" className="font-medium text-cyan-400 hover:text-cyan-300">
+              Olvidaste tu contrasena?
+            </Link>
+          </p>
+
           {error && <p className="text-sm text-rose-400">{error}</p>}
 
           <button

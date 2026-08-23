@@ -59,6 +59,12 @@ export default function AccountProfilePage() {
             Volver al dashboard
           </Link>
           <h1 className="mt-3 text-2xl font-semibold text-slate-100">Mi cuenta</h1>
+          <Link
+            href="/account/change-password"
+            className="mt-2 inline-block text-sm font-medium text-cyan-400 hover:text-cyan-300"
+          >
+            Cambiar contrasena
+          </Link>
         </header>
 
         <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6">

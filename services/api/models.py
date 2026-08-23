@@ -179,6 +179,20 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
 class User(BaseModel):
     """Representación interna completa (incluye `hashed_password`)."""
 
@@ -188,5 +202,6 @@ class User(BaseModel):
     is_active: bool = True
     role: Role = Role.USER
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    password_changed_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)

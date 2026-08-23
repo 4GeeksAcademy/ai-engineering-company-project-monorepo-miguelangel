@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { createRecord, getAllRecords } from "@/lib/api";
+import { useAuth } from "@/lib/AuthContext";
 import {
   getStageLabel,
   getStatusLabel,
@@ -39,6 +40,7 @@ const initialCreateForm: CandidatePayload = {
 };
 
 export default function CandidatesPageClient() {
+  const { user, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -166,13 +168,33 @@ export default function CandidatesPageClient() {
     <main className="min-h-screen bg-slate-50 p-6 text-slate-800 md:p-10">
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <p className="text-sm font-medium uppercase tracking-wide text-teal-700">
-            Nexova Solutions
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold">Talent Pipeline Tracker</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Operaciones de Seleccion · Lider: Javier Almeida
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-wide text-teal-700">
+                Nexova Solutions
+              </p>
+              <h1 className="mt-2 text-3xl font-semibold">Talent Pipeline Tracker</h1>
+              <p className="mt-2 text-sm text-slate-600">
+                Operaciones de Seleccion · Lider: Javier Almeida
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-3 text-sm">
+              {user && <span className="text-slate-600">{user.email}</span>}
+              <Link
+                href="/account/profile"
+                className="rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 transition hover:border-slate-400"
+              >
+                Mi cuenta
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 transition hover:border-slate-400"
+              >
+                Cerrar sesion
+              </button>
+            </div>
+          </div>
         </header>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">

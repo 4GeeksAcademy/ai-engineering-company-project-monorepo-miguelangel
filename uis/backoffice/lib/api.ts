@@ -1,6 +1,21 @@
 import type { AnalysisSummary } from "./types";
+import { clearToken, getToken } from "./auth-storage";
 
 const API_BASE_PATH = "/api/incidents";
+
+function authHeaders(): HeadersInit {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function handleUnauthorized(res: Response): void {
+  if (res.status === 401) {
+    clearToken();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+  }
+}
 
 export class ApiError extends Error {
   status: number;
@@ -26,10 +41,12 @@ export async function analyzeIncidentsFile(file: File): Promise<AnalysisSummary>
 
   const res = await fetch(`${API_BASE_PATH}/analyze`, {
     method: "POST",
+    headers: authHeaders(),
     body: formData,
   });
 
   if (!res.ok) {
+    handleUnauthorized(res);
     throw new ApiError(res.status, await readErrorDetail(res));
   }
 
@@ -41,9 +58,12 @@ export async function analyzeIncidentsFile(file: File): Promise<AnalysisSummary>
  * disparando el diálogo nativo de "guardar como".
  */
 export async function downloadResultsCsv(): Promise<void> {
-  const res = await fetch(`${API_BASE_PATH}/results/export`);
+  const res = await fetch(`${API_BASE_PATH}/results/export`, {
+    headers: authHeaders(),
+  });
 
   if (!res.ok) {
+    handleUnauthorized(res);
     throw new ApiError(res.status, await readErrorDetail(res));
   }
 

@@ -1,5 +1,7 @@
 README.md
+email_service.py
 models.py
+password_resets.py
 pyproject.toml
 seed.py
 nexova_api.egg-info/PKG-INFO

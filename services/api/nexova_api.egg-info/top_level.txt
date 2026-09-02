@@ -1,2 +1,4 @@
+email_service
 models
+password_resets
 seed

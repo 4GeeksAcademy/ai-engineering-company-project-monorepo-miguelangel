@@ -150,7 +150,10 @@ def create_outbound_order(
 
 
 @router.get("/orders", response_model=list[OrderRead])
-def list_orders(db: Session = Depends(get_db)) -> list[OrderRead]:
+def list_orders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[OrderRead]:
     assets_by_id = {asset.id: asset for asset in db.exec(select(Asset)).all()}
 
     def _summary(asset_id: int) -> AssetSummary:

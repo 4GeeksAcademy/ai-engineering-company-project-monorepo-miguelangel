@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 from tinydb import TinyDB
 
 from models import Country, ProviderCreate, Status, User, VALID_CATEGORIES
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/suppliers", tags=["suppliers"])
 
 class SupplierCreate(ProviderCreate):
     contract_renewal_date: str | None = None
-    contact_email: str | None = None
+    contact_email: EmailStr | None = None
     notes: str | None = None
 
 

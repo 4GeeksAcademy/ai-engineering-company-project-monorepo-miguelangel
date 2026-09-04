@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 VALID_CATEGORIES = [
     "job_boards",
@@ -123,7 +123,7 @@ class ProfileFields(BaseModel):
 class UserCreate(BaseModel):
     """Payload de registro: credenciales + datos de perfil opcionales."""
 
-    email: str = Field(min_length=3)
+    email: EmailStr
     password: str = Field(min_length=8)
     name: str | None = None
     phone: str | None = None
@@ -133,13 +133,13 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    email: str | None = None
+    email: EmailStr | None = None
     role: Role | None = None
 
 
 class UserRead(BaseModel):
     id: str
-    email: str
+    email: EmailStr
     is_active: bool
     role: Role
     created_at: datetime
@@ -164,13 +164,13 @@ class ProfileRead(BaseModel):
 
 
 class MeRead(BaseModel):
-    email: str
+    email: EmailStr
     role: Role
     profile: ProfileRead
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 
@@ -180,7 +180,7 @@ class Token(BaseModel):
 
 
 class ForgotPasswordRequest(BaseModel):
-    email: str
+    email: EmailStr
 
 
 class ResetPasswordRequest(BaseModel):
@@ -197,7 +197,7 @@ class User(BaseModel):
     """Representación interna completa (incluye `hashed_password`)."""
 
     id: str
-    email: str
+    email: EmailStr
     hashed_password: str
     is_active: bool = True
     role: Role = Role.USER

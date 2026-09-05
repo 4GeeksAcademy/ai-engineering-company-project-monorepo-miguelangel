@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
+from sqlmodel import Field as SQLField
+from sqlmodel import SQLModel
 
 VALID_CATEGORIES = [
     "job_boards",
@@ -205,3 +207,39 @@ class User(BaseModel):
     password_changed_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# --- Inventario (Hito 5, Nexova) — modelos ORM (SQLModel) --------------------
+#
+# Viven en Supabase, separados de TinyDB. `current_stock` nunca es una
+# columna: siempre se calcula en la capa de rutas a partir de las órdenes.
+# Sin tabla de usuarios aquí — `user_uuid` solo referencia el UUID de TinyDB.
+
+
+class Asset(SQLModel, table=True):
+    id: int | None = SQLField(default=None, primary_key=True)
+    name: str
+    sku: str = SQLField(unique=True, index=True)
+    category: str
+    office: str
+
+
+class AssetEntry(SQLModel, table=True):
+    id: int | None = SQLField(default=None, primary_key=True)
+    asset_id: int = SQLField(foreign_key="asset.id")
+    quantity: int
+    supplier: str
+    office: str
+    created_at: datetime = SQLField(default_factory=lambda: datetime.now(timezone.utc))
+    user_uuid: str
+
+
+class AssetExit(SQLModel, table=True):
+    id: int | None = SQLField(default=None, primary_key=True)
+    asset_id: int = SQLField(foreign_key="asset.id")
+    quantity: int
+    exit_type: str
+    assigned_to: str | None = None
+    office: str
+    created_at: datetime = SQLField(default_factory=lambda: datetime.now(timezone.utc))
+    user_uuid: str

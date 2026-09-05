@@ -29,6 +29,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import incidents
+from database import create_db_and_tables
+from routers import inventory
 from routes import auth, profiles, suppliers, users
 
 app = FastAPI(
@@ -36,6 +38,11 @@ app = FastAPI(
     description="API centralizada de Nexova — soporte, operaciones y más.",
     version="0.1.0",
 )
+
+
+@app.on_event("startup")
+def on_startup() -> None:
+    create_db_and_tables()
 
 # Orígenes permitidos para el frontend (Next.js en desarrollo).
 # En producción, sustituir por el dominio real del backoffice.
@@ -56,6 +63,7 @@ app.include_router(users.router)
 app.include_router(profiles.router)
 app.include_router(incidents.router)
 app.include_router(suppliers.router)
+app.include_router(inventory.router)
 
 
 @app.get("/api/health")

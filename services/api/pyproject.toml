@@ -11,16 +11,19 @@ dependencies = [
     "email-validator>=2.0",
     "fastapi>=0.111",
     "libpass[bcrypt]>=1.9.3",
+    "psycopg2-binary>=2.9.12",
     "python-dotenv>=1.2.2",
     "python-jose[cryptography]>=3.5.0",
     "python-multipart>=0.0.9",
     "resend>=2.0.0",
+    "sqlmodel>=0.0.42",
     "tinydb>=4.8",
     "uvicorn[standard]>=0.29",
 ]
 
 [project.scripts]
 seed = "seed:main"
+seed-inventory = "seed_inventory:main"
 
 [tool.setuptools]
-py-modules = ["seed", "models", "email_service", "password_resets"]
+py-modules = ["seed", "seed_inventory", "models", "schemas", "database", "email_service", "password_resets"]

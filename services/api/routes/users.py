@@ -45,7 +45,15 @@ def get_user_by_id(user_id: str) -> User | None:
 def get_user_by_email(email: str) -> User | None:
     db, table = _get_table()
     try:
-        doc = table.get(Query().email == email.strip().lower())
+        normalized_email = email.strip().lower()
+        doc = next(
+            (
+                candidate
+                for candidate in table.all()
+                if str(candidate.get("email", "")).strip().lower() == normalized_email
+            ),
+            None,
+        )
         return User.model_validate(doc) if doc else None
     finally:
         db.close()
@@ -77,7 +85,12 @@ def _require_self_or_admin(target_user_id: str, current_user: User) -> None:
 def create_user(payload: UserCreate) -> UserRead:
     db, table = _get_table()
     try:
-        if table.get(Query().email == payload.email.strip().lower()) is not None:
+        normalized_email = str(payload.email).strip().lower()
+        email_exists = any(
+            str(existing.get("email", "")).strip().lower() == normalized_email
+            for existing in table.all()
+        )
+        if email_exists:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ya existe un usuario con ese email.",
@@ -85,7 +98,7 @@ def create_user(payload: UserCreate) -> UserRead:
 
         user = User(
             id=str(uuid.uuid4()),
-            email=payload.email.strip().lower(),
+            email=normalized_email,
             hashed_password=hash_password(payload.password),
             role=Role.USER,
         )
@@ -131,7 +144,8 @@ def update_user(
 
     updates: dict = {}
     if payload.email is not None:
-        updates["email"] = payload.email.strip().lower()
+        normalized_email = str(payload.email).strip().lower()
+        updates["email"] = normalized_email
     if payload.role is not None:
         if current_user.role != Role.ADMIN:
             raise HTTPException(
@@ -145,6 +159,19 @@ def update_user(
         existing = table.get(Query().id == user_id)
         if existing is None:
             raise HTTPException(status_code=404, detail="Usuario no encontrado.")
+
+        if "email" in updates:
+            email_exists = any(
+                candidate.get("id") != user_id
+                and str(candidate.get("email", "")).strip().lower()
+                == normalized_email
+                for candidate in table.all()
+            )
+            if email_exists:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Ya existe un usuario con ese email.",
+                )
 
         if updates:
             table.update(updates, Query().id == user_id)

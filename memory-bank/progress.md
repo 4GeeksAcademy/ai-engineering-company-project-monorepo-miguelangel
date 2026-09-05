@@ -17,4 +17,5 @@
 - Validar con stakeholders de negocio la nueva línea visual premium del backoffice antes de extenderla a otros módulos.
 
 ## Historial de Avances
+- **[2026-09-04] Validación estricta de emails en API:** Se sustituyeron campos Pydantic de email basados en `str` por `EmailStr` en modelos de usuarios/autenticación y en el contacto de proveedores. Se declaró `email-validator` como dependencia del servicio API y se validó que los modelos rechazan emails inválidos.
 - **[2026-07-25] Refactor visual premium del backoffice:** Rediseño de `app/layout.tsx` y `app/page.tsx` con dark mode elegante, tarjetas KPI modernizadas, header sin banner agresivo y panel JSON con look de terminal.
